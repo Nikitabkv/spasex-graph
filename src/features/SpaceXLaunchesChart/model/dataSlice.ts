@@ -1,31 +1,42 @@
-//@ts-nocheck
-import {createSlice} from "@reduxjs/toolkit"
-import {getSpaceXLaunches} from "./dataAsyncThunk.ts"
+import { createSlice, ActionReducerMapBuilder } from "@reduxjs/toolkit"
+import { getSpaceXLaunches } from "./dataAsyncThunk.ts"
 
-export const dataSlice = createSlice({
+interface Launch {
+  year: string;
+  count: number;
+}
+
+interface SpaceXDataState {
+  launches: Launch[];
+  isLoading: boolean;
+}
+
+const initialState: SpaceXDataState = {
+  launches: [],
+  isLoading: false
+}
+
+const dataSlice = createSlice({
   name: 'spaceXData',
-  initialState: {
-    launches: [],
-    isLoading: false
-  },
+  initialState,
   reducers: {
     setLaunches(state, action) {
       state.launches = action.payload
     }
   },
-  extraReducers: (builder) => {
+  extraReducers: (builder: ActionReducerMapBuilder<SpaceXDataState>) => {
     builder
       .addCase(getSpaceXLaunches.fulfilled, (state, action) => {
         state.isLoading = false
-        const data = []
+        const data: Launch[] = []
 
-        action.payload.data.launches.forEach((el: unknown) => {
+        action.payload.data.launches.forEach((el: { launch_date_utc: string }) => {
           const obj = data.find(obj => obj.year === el.launch_date_utc.slice(0, 4))
 
           if (obj) {
             obj.count += 1
           } else {
-            data.push({year: el.launch_date_utc.slice(0, 4), count: 1})
+            data.push({ year: el.launch_date_utc.slice(0, 4), count: 1 })
           }
         })
 
@@ -42,6 +53,4 @@ export const dataSlice = createSlice({
   }
 })
 
-export const {
-  setLaunches
-} = dataSlice.actions
+export const { setLaunches } = dataSlice.actions
