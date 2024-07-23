@@ -9,20 +9,43 @@ interface Launch {
 export interface SpaceXDataState {
   launches: Launch[];
   isLoading: boolean;
+  count: number,
 }
 
 const initialState: SpaceXDataState = {
   launches: [],
-  isLoading: false
+  isLoading: false,
+  count: 0,
 }
 
 export const dataSlice = createSlice({
   name: 'spaceXData',
   initialState,
   reducers: {
-    setLaunches(state, action) {
-      state.launches = action.payload
-    }
+    increment(state) {
+      state.count++
+      localStorage.setItem('count', JSON.stringify(state.count))
+    },
+    decrement(state) {
+      state.count--;
+      localStorage.setItem('count', JSON.stringify(state.count))
+    },
+    reset(state) {
+      state.count = 0
+      localStorage.setItem('count', JSON.stringify(state.count))
+      state.launches = []
+      localStorage.setItem('launches', JSON.stringify([]))
+    },
+    loadFromLocalStorage(state) {
+      const storedValueCount = localStorage.getItem('count');
+      const storedValueLaunches = localStorage.getItem('launches');
+      if (storedValueCount) {
+        state.count = JSON.parse(storedValueCount);
+      }
+      if (storedValueLaunches) {
+        state.launches = JSON.parse(storedValueLaunches);
+      }
+    },
   },
   extraReducers: (builder: ActionReducerMapBuilder<SpaceXDataState>) => {
     builder
@@ -41,6 +64,7 @@ export const dataSlice = createSlice({
         })
 
         state.launches = data
+        localStorage.setItem('launches', JSON.stringify(state.launches))
       })
       .addCase(getSpaceXLaunches.pending, (state) => {
         state.isLoading = true
@@ -53,4 +77,4 @@ export const dataSlice = createSlice({
   }
 })
 
-export const { setLaunches } = dataSlice.actions
+export const { increment, decrement, reset, loadFromLocalStorage } = dataSlice.actions
