@@ -6,7 +6,7 @@ interface Launch {
   count: number;
 }
 
-interface SpaceXDataState {
+export interface SpaceXDataState {
   launches: Launch[];
   isLoading: boolean;
 }
@@ -16,7 +16,7 @@ const initialState: SpaceXDataState = {
   isLoading: false
 }
 
-const dataSlice = createSlice({
+export const dataSlice = createSlice({
   name: 'spaceXData',
   initialState,
   reducers: {

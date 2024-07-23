@@ -1,11 +1,5 @@
-const getLaunchCounts = (launches) => {
-  let sortedLaunches = []
-  launches.forEach(el => {
-    if (el in sortedLaunches) {
-
-    }
-  })
-  return launches.map((launch: unknown, i: number) => {
+const getLaunchCounts = (launches: Array<{ year: string, count: number }>) => {
+  return launches.map((launch: { year: string }, i: number) => {
     const count = launches.slice(0, i + 1).reduce((acc, el) => acc + el.count, 0)
     return {
       color: generateIntermediateColor(0, launches.reduce((acc, el) => acc + el.count, 0), count),
@@ -16,9 +10,12 @@ const getLaunchCounts = (launches) => {
   })
 }
 
-const generateIntermediateColor = (minNumber, maxNumber, number) => {
-  const minRGB = 'rgba(106,0,255,1)'.match(/\d+/g).map(Number);
-  const maxRGB = 'rgba(255,121,121,1)'.match(/\d+/g).map(Number);
+const generateIntermediateColor = (minNumber: number, maxNumber: number, number: number) => {
+  const minRGBMatch = 'rgba(106,0,255,1)'.match(/\d+/g);
+  const minRGB = minRGBMatch ? minRGBMatch.map(Number) : [0, 0, 0];
+
+  const maxRGBMatch = 'rgba(255,121,121,1)'.match(/\d+/g);
+  const maxRGB = maxRGBMatch ? maxRGBMatch.map(Number) : [0, 0, 0];
 
   const percent = (number - minNumber) / (maxNumber - minNumber);
   const r = minRGB[0] + percent * (maxRGB[0] - minRGB[0]);
@@ -28,7 +25,7 @@ const generateIntermediateColor = (minNumber, maxNumber, number) => {
   return `rgba(${r}, ${g}, ${b}, 1)`;
 }
 
-export const getOptions = (launches) => {
+export const getOptions = (launches: Array<{ year: string, count: number }>) => {
   return {
     title: {
       text: 'Запуски ракет SpaceX'
@@ -44,13 +41,10 @@ export const getOptions = (launches) => {
       title: {
         text: 'Год'
       },
-      categories: launches.map((launch: unknown) => launch.year),
+      categories: launches.map((launch: { year: string }) => launch.year),
     },
     tooltip: {
-      formatter: function () {
-        return '<b>' + this.series.name + '</b><br/>' +
-          this.x + ': ' + this.point.current
-      }
+      pointFormat: '{series.name}: <b>{point.current}</b><br/>',
     },
     series: [{
       lineWidth: 3,
